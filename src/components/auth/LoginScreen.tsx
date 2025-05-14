@@ -46,7 +46,7 @@ const LoginScreen = () => {
           description: 'Welcome back to Lovable Recruiter!',
           variant: 'default',
         });
-        navigate('/');
+        navigate('/dashboard');
       } else {
         setErrors(['Invalid username or password']);
       }

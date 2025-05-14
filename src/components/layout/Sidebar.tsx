@@ -26,7 +26,7 @@ interface MenuItem {
 }
 
 const menuItems: MenuItem[] = [
-  { icon: Home, text: 'Dashboard', path: '/' },
+  { icon: Home, text: 'Dashboard', path: '/dashboard' },
   { icon: FileText, text: 'Resume Analysis', path: '/resume-analysis' },
   { icon: Users, text: 'Candidates', path: '/candidates' },
   { icon: BarChart2, text: 'Reports', path: '/reports' },
