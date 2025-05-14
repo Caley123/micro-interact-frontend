@@ -11,6 +11,8 @@ import ResumeAnalysis from "./pages/ResumeAnalysis";
 import Candidates from "./pages/Candidates";
 import CandidateDetailsPage from "./pages/CandidateDetailsPage";
 import RecommendationsPage from "./pages/RecommendationsPage";
+import Reports from "./pages/Reports";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,8 @@ const App = () => (
         <Route path="/candidates" element={<Candidates />} />
         <Route path="/candidates/:id" element={<CandidateDetailsPage />} />
         <Route path="/recommendations" element={<RecommendationsPage />} />
+        <Route path="/reports" element={<Reports />} />
+        <Route path="/settings" element={<Settings />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>

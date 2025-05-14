@@ -1,193 +1,115 @@
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { useToast } from '@/components/ui/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, User, AlertCircle } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { authenticateUser } from '@/services/DatabaseService';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<string[]>([]);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrors([]);
-
-    // Form validation
-    const newErrors: string[] = [];
-    if (!username) newErrors.push('Username is required');
-    if (!password) newErrors.push('Password is required');
-    if (password && password.length < 6) newErrors.push('Password must be at least 6 characters');
-
-    if (newErrors.length > 0) {
-      setErrors(newErrors);
-      setIsLoading(false);
+    
+    if (!username || !password) {
+      setErrors(['Por favor, complete todos los campos']);
       return;
     }
-
+    
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      setLoading(true);
+      const user = await authenticateUser(username, password);
       
-      // For demo purposes only - successful login for specific credentials
-      if (username === 'admin' && password === 'password') {
+      if (user) {
         toast({
-          title: 'Login successful',
-          description: 'Welcome back to Lovable Recruiter!',
+          title: `¡Bienvenido ${user.nombre_usuario}!`,
+          description: 'Has iniciado sesión correctamente en Lovable Recruiter!',
           variant: 'default',
         });
+        
+        // Guardar información de sesión en localStorage
+        localStorage.setItem('currentUser', JSON.stringify({
+          id: user.usuario_id,
+          username: user.nombre_usuario,
+          email: user.email,
+          role: user.rol
+        }));
+        
         navigate('/dashboard');
       } else {
-        setErrors(['Invalid username or password']);
+        setErrors(['Usuario o contraseña incorrectos']);
       }
     } catch (error) {
-      setErrors(['An error occurred. Please try again.']);
-      console.error('Login error:', error);
+      console.error('Error de autenticación:', error);
+      setErrors(['Error al intentar iniciar sesión']);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
-  };
-
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 animate-fade-in">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold">Lovable Recruiter</h1>
-          <p className="text-gray-500 mt-2">Sign in to your account</p>
-        </div>
-
-        {errors.length > 0 && (
-          <div className="bg-red-50 text-red-700 p-4 rounded-md animate-slideInDown flex items-start">
-            <AlertCircle className="w-5 h-5 mr-2 flex-shrink-0 animate-pulse" />
-            {errors.length === 1 ? (
-              <span>{errors[0]}</span>
-            ) : (
-              <ul className="list-disc pl-5 space-y-1">
-                {errors.map((error, index) => (
-                  <li key={index} className="animate-staggeredFadeIn" style={{ animationDelay: `${index * 100}ms` }}>
-                    {error}
-                  </li>
-                ))}
-              </ul>
+    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">Lovable Recruiter</CardTitle>
+          <CardDescription>
+            Ingrese sus credenciales para acceder al sistema
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {errors.length > 0 && (
+              <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <ul className="list-disc pl-5">
+                  {errors.map((error, index) => (
+                    <li key={index}>{error}</li>
+                  ))}
+                </ul>
+              </div>
             )}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-6">
-          <div className="space-y-2">
-            <div className="relative">
-              <Label htmlFor="username" className="text-sm font-medium">
-                Username / Email
-              </Label>
-              <div className="relative">
-                <Input
-                  id="username"
-                  type="text"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="pl-10 transition-all focus:border-2 focus:border-primary"
-                  disabled={isLoading}
-                  placeholder="Enter your username or email"
-                />
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                {username && username.length >= 3 && (
-                  <span className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 animate-scaleIn">
-                    ✓
-                  </span>
-                )}
-              </div>
-            </div>
-
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Password
-              </Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 transition-all focus:border-2 focus:border-primary"
-                  disabled={isLoading}
-                  placeholder="Enter your password"
-                />
-                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                <button
-                  type="button"
-                  onClick={togglePasswordVisibility}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-transform"
-                >
-                  {showPassword ? (
-                    <EyeOff className="w-4 h-4 animate-rotate" />
-                  ) : (
-                    <Eye className="w-4 h-4 animate-rotate" />
-                  )}
-                </button>
-              </div>
+              <Label htmlFor="username">Usuario</Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Ingrese su nombre de usuario"
+                disabled={loading}
+              />
             </div>
-
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="remember"
-                  checked={rememberMe}
-                  onCheckedChange={(checked) => setRememberMe(checked === true)}
-                  disabled={isLoading}
-                  className="animate-checkmark"
-                />
-                <Label htmlFor="remember" className="text-sm font-medium cursor-pointer">
-                  Remember me
-                </Label>
-              </div>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-800 transition-colors">
-                Forgot password?
-              </a>
+            <div className="space-y-2">
+              <Label htmlFor="password">Contraseña</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Ingrese su contraseña"
+                disabled={loading}
+              />
             </div>
-
-            <Button
-              type="submit"
-              className="w-full transition-all duration-200 hover:shadow-md group"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <div className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span>Logging in...</span>
-                </div>
-              ) : (
-                <span className="group-active:scale-95 transition-transform">Log in</span>
-              )}
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
             </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex flex-col">
+          <div className="text-sm text-gray-500 mt-2">
+            <p className="text-center">Credenciales de prueba:</p>
+            <p className="text-center">Usuario: <strong>admin</strong> | Contraseña: <strong>password</strong></p>
           </div>
-        </form>
-
-        <div className="mt-4 text-center">
-          <p className="text-sm text-gray-600">
-            Don&apos;t have an account?{' '}
-            <a href="#" className="text-blue-600 hover:text-blue-800 transition-colors">
-              Sign up
-            </a>
-          </p>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 };
