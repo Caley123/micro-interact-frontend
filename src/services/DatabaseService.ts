@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { Json } from '@/integrations/supabase/types';
 
 export interface Usuario {
   usuario_id: number;
@@ -8,6 +9,14 @@ export interface Usuario {
   rol: string;
   fecha_creacion: string;
   ultimo_login: string | null;
+}
+
+// Interfaces para tipado fuerte
+interface Experiencia {
+  title?: string;
+  position?: string;
+  years?: number;
+  duration?: number;
 }
 
 // Autenticación de usuarios
@@ -101,16 +110,18 @@ export async function getReportsData() {
       if (item.experiencia && Array.isArray(item.experiencia)) {
         // Calculamos los años totales de experiencia sumando todas las experiencias
         const totalYears = item.experiencia.reduce((sum: number, exp: any) => {
-          const years = exp.years || exp.duration || 0;
+          const years = typeof exp === 'object' ? (exp.years || exp.duration || 0) : 0;
           return sum + (typeof years === 'number' ? years : 0);
         }, 0);
         
         // Asignamos a la categoría correspondiente
-        if (totalYears <= 1) experienceRanges['0-1 años']++;
-        else if (totalYears <= 3) experienceRanges['1-3 años']++;
-        else if (totalYears <= 5) experienceRanges['3-5 años']++;
-        else if (totalYears <= 8) experienceRanges['5-8 años']++;
-        else experienceRanges['8+ años']++;
+        if (typeof totalYears === 'number') {
+          if (totalYears <= 1) experienceRanges['0-1 años']++;
+          else if (totalYears <= 3) experienceRanges['1-3 años']++;
+          else if (totalYears <= 5) experienceRanges['3-5 años']++;
+          else if (totalYears <= 8) experienceRanges['5-8 años']++;
+          else experienceRanges['8+ años']++;
+        }
       }
     });
     
@@ -204,18 +215,19 @@ export async function getCandidates() {
       // Calcular la experiencia total
       let totalExperience = 0;
       if (candidate.experiencia && Array.isArray(candidate.experiencia)) {
-        totalExperience = candidate.experiencia.reduce((sum, job) => {
-          return sum + (job.years || job.duration || 0);
+        totalExperience = candidate.experiencia.reduce((sum: number, job: any) => {
+          const years = typeof job === 'object' ? (job.years || job.duration || 0) : 0;
+          return sum + (typeof years === 'number' ? years : 0);
         }, 0);
       }
       
       // Obtener la posición basada en la experiencia
-      let position = '';
+      let position = 'No especificado';
       if (candidate.experiencia && Array.isArray(candidate.experiencia) && candidate.experiencia.length > 0) {
         const lastJob = candidate.experiencia[0];
-        position = lastJob.title || lastJob.position || 'No especificado';
-      } else {
-        position = 'No especificado';
+        if (typeof lastJob === 'object') {
+          position = lastJob.title || lastJob.position || 'No especificado';
+        }
       }
       
       return {
@@ -302,7 +314,9 @@ export async function getRecentCandidates() {
       let position = 'No especificado';
       if (candidate.experiencia && Array.isArray(candidate.experiencia) && candidate.experiencia.length > 0) {
         const lastJob = candidate.experiencia[0];
-        position = lastJob.title || lastJob.position || 'No especificado';
+        if (typeof lastJob === 'object') {
+          position = lastJob.title || lastJob.position || 'No especificado';
+        }
       }
       
       // Calcular tiempo desde la carga
