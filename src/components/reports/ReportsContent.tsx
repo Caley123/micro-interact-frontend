@@ -124,7 +124,7 @@ const ReportsContent = () => {
                 reportData.descriptiveResults.map((result: any) => (
                   <TableRow key={result.analisis_id}>
                     <TableCell>{result.analisis_id}</TableCell>
-                    <TableCell>{result.cv_procesados}</TableCell>
+                    <TableCell>{result.cv_procesados || 'N/A'}</TableCell>
                     <TableCell>{result.habilidades_top ? result.habilidades_top.join(', ') : 'N/A'}</TableCell>
                     <TableCell>{result.experiencia_promedio ? JSON.stringify(result.experiencia_promedio) : 'N/A'}</TableCell>
                     <TableCell>{new Date(result.fecha_analisis).toLocaleDateString()}</TableCell>
@@ -133,7 +133,7 @@ const ReportsContent = () => {
               ) : (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-4">
-                    No hay datos de análisis disponibles
+                    {loading ? 'Cargando datos...' : 'No hay datos de análisis disponibles'}
                   </TableCell>
                 </TableRow>
               )}

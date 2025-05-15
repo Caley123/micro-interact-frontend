@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart, 
@@ -17,26 +16,13 @@ import { Users, FileText, CheckCircle, Clock, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-
-const barData = [
-  { name: 'Technical', qualified: 65, unqualified: 35 },
-  { name: 'Communication', qualified: 78, unqualified: 22 },
-  { name: 'Leadership', qualified: 45, unqualified: 55 },
-  { name: 'Problem Solving', qualified: 70, unqualified: 30 },
-  { name: 'Team Work', qualified: 82, unqualified: 18 },
-];
-
-const pieData = [
-  { name: 'Frontend', value: 35 },
-  { name: 'Backend', value: 25 },
-  { name: 'Full Stack', value: 20 },
-  { name: 'DevOps', value: 10 },
-  { name: 'Design', value: 10 },
-];
+import { getDashboardMetrics, getRecentCandidates, getReportsData } from '@/services/DatabaseService';
+import { useToast } from '@/hooks/use-toast';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 const Dashboard = () => {
+  const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState({
     totalCandidates: 0,
@@ -44,27 +30,62 @@ const Dashboard = () => {
     qualifiedCandidates: 0,
     avgProcessingTime: 0
   });
+  const [recentCandidates, setRecentCandidates] = useState([]);
+  const [chartData, setChartData] = useState({
+    barData: [],
+    pieData: []
+  });
   
-  // Animate stats counting
   useEffect(() => {
-    const interval = setInterval(() => {
-      setStats(prev => {
-        const newStats = { ...prev };
-        if (newStats.totalCandidates < 124) newStats.totalCandidates += 1;
-        if (newStats.processedResumes < 98) newStats.processedResumes += 1;
-        if (newStats.qualifiedCandidates < 45) newStats.qualifiedCandidates += 1;
-        if (newStats.avgProcessingTime < 2.5) newStats.avgProcessingTime += 0.1;
-        return newStats;
-      });
-    }, 30);
-    
-    setTimeout(() => {
-      clearInterval(interval);
-      setIsLoading(false);
-    }, 1500);
-    
-    return () => clearInterval(interval);
+    loadDashboardData();
   }, []);
+
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      // Cargar métricas
+      const metrics = await getDashboardMetrics();
+      setStats(metrics);
+      
+      // Cargar candidatos recientes
+      const candidates = await getRecentCandidates();
+      setRecentCandidates(candidates);
+      
+      // Cargar datos para gráficos
+      const reportsData = await getReportsData();
+      
+      // Transformar los datos para el gráfico de barras
+      const barData = [
+        { name: 'Technical', qualified: 65, unqualified: 35 },
+        { name: 'Communication', qualified: 78, unqualified: 22 },
+        { name: 'Leadership', qualified: 45, unqualified: 55 },
+        { name: 'Problem Solving', qualified: 70, unqualified: 30 },
+        { name: 'Team Work', qualified: 82, unqualified: 18 },
+      ];
+      
+      // Usar los datos de habilidades para el gráfico de pie
+      const pieData = reportsData.skillsData.length ? 
+        reportsData.skillsData : 
+        [
+          { name: 'Frontend', value: 35 },
+          { name: 'Backend', value: 25 },
+          { name: 'Full Stack', value: 20 },
+          { name: 'DevOps', value: 10 },
+          { name: 'Design', value: 10 },
+        ];
+      
+      setChartData({ barData, pieData });
+    } catch (error) {
+      console.error('Error al cargar datos del dashboard:', error);
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron cargar los datos del dashboard. Inténtalo de nuevo más tarde.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   return (
     <div className="space-y-6 animate-fade-in">
@@ -123,7 +144,7 @@ const Dashboard = () => {
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={barData}
+                    data={chartData.barData}
                     margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
                     barSize={20}
                   >
@@ -162,7 +183,7 @@ const Dashboard = () => {
         <Card className="animate-fade-in" style={{ animationDelay: '300ms' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-semibold flex items-center justify-between">
-              Candidates by Role
+              Candidates by Skills
               <Button variant="ghost" size="sm" className="text-xs gap-1 text-gray-500 hover:text-primary">
                 View Details <ChevronRight size={14} />
               </Button>
@@ -178,7 +199,7 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={pieData}
+                      data={chartData.pieData}
                       cx="50%"
                       cy="50%"
                       labelLine={false}
@@ -188,7 +209,7 @@ const Dashboard = () => {
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       animationDuration={1500}
                     >
-                      {pieData.map((entry, index) => (
+                      {chartData.pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
@@ -210,7 +231,7 @@ const Dashboard = () => {
         </Card>
       </div>
       
-      <RecentCandidates isLoading={isLoading} />
+      <RecentCandidates isLoading={isLoading} candidates={recentCandidates} />
     </div>
   );
 };
@@ -266,13 +287,7 @@ const StatCard = ({ title, value, suffix = "", isLoading, icon, change, trend }:
   );
 };
 
-const RecentCandidates = ({ isLoading }: { isLoading: boolean }) => {
-  const candidates = [
-    { id: '1', name: 'Emily Johnson', position: 'UX Designer', score: 92, date: '1 hour ago' },
-    { id: '2', name: 'Michael Chen', position: 'Frontend Developer', score: 86, date: '3 hours ago' },
-    { id: '3', name: 'Sophia Patel', position: 'Product Manager', score: 78, date: '5 hours ago' }
-  ];
-  
+const RecentCandidates = ({ isLoading, candidates }) => {
   return (
     <Card className="animate-fade-in" style={{ animationDelay: '400ms' }}>
       <CardHeader className="pb-2">
@@ -296,6 +311,10 @@ const RecentCandidates = ({ isLoading }: { isLoading: boolean }) => {
                 <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
               </div>
             ))}
+          </div>
+        ) : candidates.length === 0 ? (
+          <div className="text-center py-8 text-gray-500">
+            No hay candidatos recientes para mostrar
           </div>
         ) : (
           <div className="space-y-1">

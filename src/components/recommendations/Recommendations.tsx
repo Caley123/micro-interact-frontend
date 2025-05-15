@@ -1,8 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Lightbulb, Filter, Star, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { getRecommendations } from '@/services/DatabaseService';
+import { useToast } from '@/hooks/use-toast';
 
 interface Recommendation {
   id: string;
@@ -13,50 +14,8 @@ interface Recommendation {
   isImplemented: boolean;
 }
 
-const sampleRecommendations: Recommendation[] = [
-  {
-    id: '1',
-    title: 'Implement technical skills assessment',
-    description: 'Add a coding challenge or technical quiz to better evaluate candidate technical abilities before the interview stage.',
-    impact: 'High',
-    category: 'Process',
-    isImplemented: false
-  },
-  {
-    id: '2',
-    title: 'Focus on collaboration skills',
-    description: 'Add specific questions to assess how candidates work in team settings and handle collaborative projects.',
-    impact: 'Medium',
-    category: 'Skills',
-    isImplemented: false
-  },
-  {
-    id: '3',
-    title: 'Adopt ATS integration',
-    description: 'Integrate with popular Applicant Tracking Systems to streamline the hiring workflow and candidate management.',
-    impact: 'High',
-    category: 'Tools',
-    isImplemented: true
-  },
-  {
-    id: '4',
-    title: 'Add behavioral interview questions',
-    description: 'Incorporate structured behavioral questions to assess soft skills and culture fit more effectively.',
-    impact: 'Medium',
-    category: 'Process',
-    isImplemented: false
-  },
-  {
-    id: '5',
-    title: 'Prioritize problem-solving skills',
-    description: 'Focus more on candidates\' ability to solve complex problems rather than just technical knowledge.',
-    impact: 'High',
-    category: 'Skills',
-    isImplemented: false
-  }
-];
-
 const Recommendations = () => {
+  const { toast } = useToast();
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [filteredRecommendations, setFilteredRecommendations] = useState<Recommendation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,13 +27,27 @@ const Recommendations = () => {
   const [filterOpen, setFilterOpen] = useState(false);
   
   useEffect(() => {
-    // Simulate API fetch
-    setTimeout(() => {
-      setRecommendations(sampleRecommendations);
-      setFilteredRecommendations(sampleRecommendations);
-      setIsLoading(false);
-    }, 1000);
+    loadRecommendations();
   }, []);
+  
+  const loadRecommendations = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getRecommendations();
+      setRecommendations(data);
+      setFilteredRecommendations(data);
+    } catch (error) {
+      console.error('Error al cargar recomendaciones:', error);
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron cargar las recomendaciones. Inténtalo de nuevo más tarde.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   
   useEffect(() => {
     if (!recommendations.length) return;
@@ -166,6 +139,7 @@ const Recommendations = () => {
     }));
   };
   
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden animate-fade-in">
       <div className="p-4 border-b border-gray-200">

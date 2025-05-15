@@ -1,10 +1,11 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, Filter, ChevronDown, ChevronUp, ArrowUpDown, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { getCandidates } from '@/services/DatabaseService';
 
 interface Candidate {
   id: string;
@@ -16,55 +17,8 @@ interface Candidate {
   date: string;
 }
 
-const sampleCandidates: Candidate[] = [
-  {
-    id: '1',
-    name: 'John Doe',
-    position: 'Frontend Developer',
-    experience: 5,
-    skills: ['React', 'TypeScript', 'Tailwind CSS'],
-    score: 85,
-    date: '2023-05-14',
-  },
-  {
-    id: '2',
-    name: 'Jane Smith',
-    position: 'UX Designer',
-    experience: 3,
-    skills: ['Figma', 'User Research', 'Prototyping'],
-    score: 92,
-    date: '2023-05-10',
-  },
-  {
-    id: '3',
-    name: 'Robert Johnson',
-    position: 'Backend Developer',
-    experience: 7,
-    skills: ['Node.js', 'Express', 'MongoDB'],
-    score: 78,
-    date: '2023-05-08',
-  },
-  {
-    id: '4',
-    name: 'Emily Davis',
-    position: 'Full Stack Developer',
-    experience: 4,
-    skills: ['React', 'Node.js', 'PostgreSQL'],
-    score: 88,
-    date: '2023-05-05',
-  },
-  {
-    id: '5',
-    name: 'Michael Wilson',
-    position: 'DevOps Engineer',
-    experience: 6,
-    skills: ['Docker', 'Kubernetes', 'AWS'],
-    score: 75,
-    date: '2023-05-01',
-  },
-];
-
 const CandidatesList = () => {
+  const { toast } = useToast();
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [filteredCandidates, setFilteredCandidates] = useState<Candidate[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,13 +28,26 @@ const CandidatesList = () => {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
   
   useEffect(() => {
-    // Simulate API fetch
-    setTimeout(() => {
-      setCandidates(sampleCandidates);
-      setFilteredCandidates(sampleCandidates);
-      setIsLoading(false);
-    }, 1000);
+    loadCandidates();
   }, []);
+  
+  const loadCandidates = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getCandidates();
+      setCandidates(data);
+      setFilteredCandidates(data);
+    } catch (error) {
+      console.error('Error al cargar candidatos:', error);
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron cargar los candidatos. Inténtalo de nuevo más tarde.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
   
   useEffect(() => {
     if (!candidates.length) return;
@@ -141,6 +108,8 @@ const CandidatesList = () => {
     return 'bg-red-500';
   };
   
+  
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden animate-fade-in">
       <div className="p-4 border-b border-gray-200">
@@ -282,7 +251,7 @@ const CandidatesList = () => {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex flex-wrap gap-1">
-                      {candidate.skills.map((skill, i) => (
+                      {candidate.skills.slice(0, 3).map((skill, i) => (
                         <span 
                           key={i} 
                           className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
@@ -290,6 +259,11 @@ const CandidatesList = () => {
                           {skill}
                         </span>
                       ))}
+                      {candidate.skills.length > 3 && (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                          +{candidate.skills.length - 3} más
+                        </span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
