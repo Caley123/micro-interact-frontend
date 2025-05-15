@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { Json } from '@/integrations/supabase/types';
 
@@ -17,6 +16,29 @@ interface Experiencia {
   position?: string;
   years?: number;
   duration?: number;
+}
+
+// Función auxiliar para manejar experiencia en formato Json
+function isExperienciaObject(exp: Json): exp is { [key: string]: Json } {
+  return typeof exp === 'object' && exp !== null && !Array.isArray(exp);
+}
+
+// Función para extraer años de experiencia de forma segura
+function getExperienceYears(exp: Json): number {
+  if (!isExperienciaObject(exp)) return 0;
+  
+  const years = exp.years || exp.duration;
+  if (typeof years === 'number') return years;
+  return 0;
+}
+
+// Función para obtener título/posición de forma segura
+function getExperienceTitle(exp: Json): string {
+  if (!isExperienciaObject(exp)) return 'No especificado';
+  
+  const title = exp.title || exp.position;
+  if (typeof title === 'string') return title;
+  return 'No especificado';
 }
 
 // Autenticación de usuarios
@@ -109,19 +131,16 @@ export async function getReportsData() {
     experienceData.forEach(item => {
       if (item.experiencia && Array.isArray(item.experiencia)) {
         // Calculamos los años totales de experiencia sumando todas las experiencias
-        const totalYears = item.experiencia.reduce((sum: number, exp: any) => {
-          const years = typeof exp === 'object' ? (exp.years || exp.duration || 0) : 0;
-          return sum + (typeof years === 'number' ? years : 0);
+        const totalYears = item.experiencia.reduce((sum: number, exp: Json) => {
+          return sum + getExperienceYears(exp);
         }, 0);
         
         // Asignamos a la categoría correspondiente
-        if (typeof totalYears === 'number') {
-          if (totalYears <= 1) experienceRanges['0-1 años']++;
-          else if (totalYears <= 3) experienceRanges['1-3 años']++;
-          else if (totalYears <= 5) experienceRanges['3-5 años']++;
-          else if (totalYears <= 8) experienceRanges['5-8 años']++;
-          else experienceRanges['8+ años']++;
-        }
+        if (totalYears <= 1) experienceRanges['0-1 años']++;
+        else if (totalYears <= 3) experienceRanges['1-3 años']++;
+        else if (totalYears <= 5) experienceRanges['3-5 años']++;
+        else if (totalYears <= 8) experienceRanges['5-8 años']++;
+        else experienceRanges['8+ años']++;
       }
     });
     
@@ -215,19 +234,15 @@ export async function getCandidates() {
       // Calcular la experiencia total
       let totalExperience = 0;
       if (candidate.experiencia && Array.isArray(candidate.experiencia)) {
-        totalExperience = candidate.experiencia.reduce((sum: number, job: any) => {
-          const years = typeof job === 'object' ? (job.years || job.duration || 0) : 0;
-          return sum + (typeof years === 'number' ? years : 0);
+        totalExperience = candidate.experiencia.reduce((sum: number, exp: Json) => {
+          return sum + getExperienceYears(exp);
         }, 0);
       }
       
       // Obtener la posición basada en la experiencia
       let position = 'No especificado';
       if (candidate.experiencia && Array.isArray(candidate.experiencia) && candidate.experiencia.length > 0) {
-        const lastJob = candidate.experiencia[0];
-        if (typeof lastJob === 'object') {
-          position = lastJob.title || lastJob.position || 'No especificado';
-        }
+        position = getExperienceTitle(candidate.experiencia[0]);
       }
       
       return {
@@ -313,10 +328,7 @@ export async function getRecentCandidates() {
       // Determinar la posición basándose en la experiencia
       let position = 'No especificado';
       if (candidate.experiencia && Array.isArray(candidate.experiencia) && candidate.experiencia.length > 0) {
-        const lastJob = candidate.experiencia[0];
-        if (typeof lastJob === 'object') {
-          position = lastJob.title || lastJob.position || 'No especificado';
-        }
+        position = getExperienceTitle(candidate.experiencia[0]);
       }
       
       // Calcular tiempo desde la carga
