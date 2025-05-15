@@ -9,7 +9,230 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      curriculums: {
+        Row: {
+          contenido_texto: string | null
+          cv_id: number
+          fecha_carga: string | null
+          formato: string | null
+          nombre_archivo: string
+          tamano_bytes: number | null
+          uploader_id: number
+        }
+        Insert: {
+          contenido_texto?: string | null
+          cv_id?: number
+          fecha_carga?: string | null
+          formato?: string | null
+          nombre_archivo: string
+          tamano_bytes?: number | null
+          uploader_id: number
+        }
+        Update: {
+          contenido_texto?: string | null
+          cv_id?: number
+          fecha_carga?: string | null
+          formato?: string | null
+          nombre_archivo?: string
+          tamano_bytes?: number | null
+          uploader_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "curriculums_uploader_id_fkey"
+            columns: ["uploader_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      datos_postulantes: {
+        Row: {
+          cv_id: number
+          educacion: Json | null
+          email: string | null
+          experiencia: Json | null
+          habilidades: string[] | null
+          nombre_completo: string | null
+          postulante_id: number
+          telefono: string | null
+        }
+        Insert: {
+          cv_id: number
+          educacion?: Json | null
+          email?: string | null
+          experiencia?: Json | null
+          habilidades?: string[] | null
+          nombre_completo?: string | null
+          postulante_id?: number
+          telefono?: string | null
+        }
+        Update: {
+          cv_id?: number
+          educacion?: Json | null
+          email?: string | null
+          experiencia?: Json | null
+          habilidades?: string[] | null
+          nombre_completo?: string | null
+          postulante_id?: number
+          telefono?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "datos_postulantes_cv_id_fkey"
+            columns: ["cv_id"]
+            isOneToOne: true
+            referencedRelation: "curriculums"
+            referencedColumns: ["cv_id"]
+          },
+        ]
+      }
+      predicciones: {
+        Row: {
+          factores_clave: string[] | null
+          fecha_prediccion: string | null
+          modelo_utilizado: string | null
+          postulante_id: number
+          prediccion_id: number
+          probabilidad_exito: number | null
+        }
+        Insert: {
+          factores_clave?: string[] | null
+          fecha_prediccion?: string | null
+          modelo_utilizado?: string | null
+          postulante_id: number
+          prediccion_id?: number
+          probabilidad_exito?: number | null
+        }
+        Update: {
+          factores_clave?: string[] | null
+          fecha_prediccion?: string | null
+          modelo_utilizado?: string | null
+          postulante_id?: number
+          prediccion_id?: number
+          probabilidad_exito?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predicciones_postulante_id_fkey"
+            columns: ["postulante_id"]
+            isOneToOne: true
+            referencedRelation: "datos_postulantes"
+            referencedColumns: ["postulante_id"]
+          },
+        ]
+      }
+      recomendaciones: {
+        Row: {
+          descripcion: string | null
+          fecha_creacion: string | null
+          mensaje: string
+          recomendacion_id: number
+          tipo: string
+        }
+        Insert: {
+          descripcion?: string | null
+          fecha_creacion?: string | null
+          mensaje: string
+          recomendacion_id?: number
+          tipo: string
+        }
+        Update: {
+          descripcion?: string | null
+          fecha_creacion?: string | null
+          mensaje?: string
+          recomendacion_id?: number
+          tipo?: string
+        }
+        Relationships: []
+      }
+      resultados_descriptivos: {
+        Row: {
+          analisis_id: number
+          cv_procesados: number | null
+          experiencia_promedio: Json | null
+          fecha_analisis: string | null
+          habilidades_top: string[] | null
+        }
+        Insert: {
+          analisis_id?: number
+          cv_procesados?: number | null
+          experiencia_promedio?: Json | null
+          fecha_analisis?: string | null
+          habilidades_top?: string[] | null
+        }
+        Update: {
+          analisis_id?: number
+          cv_procesados?: number | null
+          experiencia_promedio?: Json | null
+          fecha_analisis?: string | null
+          habilidades_top?: string[] | null
+        }
+        Relationships: []
+      }
+      sesiones: {
+        Row: {
+          fecha_expiracion: string
+          fecha_inicio: string | null
+          sesion_id: string
+          token: string
+          usuario_id: number
+        }
+        Insert: {
+          fecha_expiracion: string
+          fecha_inicio?: string | null
+          sesion_id: string
+          token: string
+          usuario_id: number
+        }
+        Update: {
+          fecha_expiracion?: string
+          fecha_inicio?: string | null
+          sesion_id?: string
+          token?: string
+          usuario_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sesiones_usuario_id_fkey"
+            columns: ["usuario_id"]
+            isOneToOne: false
+            referencedRelation: "usuarios"
+            referencedColumns: ["usuario_id"]
+          },
+        ]
+      }
+      usuarios: {
+        Row: {
+          contrasena_hash: string
+          email: string
+          fecha_creacion: string | null
+          nombre_usuario: string
+          rol: string
+          ultimo_login: string | null
+          usuario_id: number
+        }
+        Insert: {
+          contrasena_hash: string
+          email: string
+          fecha_creacion?: string | null
+          nombre_usuario: string
+          rol?: string
+          ultimo_login?: string | null
+          usuario_id?: number
+        }
+        Update: {
+          contrasena_hash?: string
+          email?: string
+          fecha_creacion?: string | null
+          nombre_usuario?: string
+          rol?: string
+          ultimo_login?: string | null
+          usuario_id?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,66 +1,47 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from '@/hooks/use-toast';
+import { getReportsData } from '@/services/DatabaseService';
 
 const ReportsContent = () => {
   const { toast } = useToast();
-  const [loading, setLoading] = React.useState(false);
+  const [loading, setLoading] = useState(false);
+  const [reportData, setReportData] = useState<any>({
+    descriptiveResults: [],
+    skillsData: [],
+    experienceData: []
+  });
   
-  // Datos de ejemplo para los gráficos
-  const skillsData = [
-    { name: 'JavaScript', value: 120 },
-    { name: 'React', value: 98 },
-    { name: 'Node.js', value: 86 },
-    { name: 'TypeScript', value: 75 },
-    { name: 'Python', value: 65 },
-    { name: 'SQL', value: 60 },
-  ];
+  useEffect(() => {
+    fetchReportData();
+  }, []);
 
-  const experienceData = [
-    { range: '0-1 años', count: 45 },
-    { range: '1-3 años', count: 80 },
-    { range: '3-5 años', count: 65 },
-    { range: '5-8 años', count: 40 },
-    { range: '8+ años', count: 25 },
-  ];
-
-  // Datos de ejemplo para la tabla de análisis descriptivos
-  const descriptiveResults = [
-    {
-      id: 1,
-      cv_processed: 255,
-      top_skills: "JavaScript, React, SQL, AWS, Python",
-      avg_experience: "4.2 años",
-      date: "2023-05-20"
-    },
-    {
-      id: 2,
-      cv_processed: 320,
-      top_skills: "Python, SQL, React, TypeScript, Docker",
-      avg_experience: "3.8 años",
-      date: "2023-06-15"
-    },
-    {
-      id: 3,
-      cv_processed: 422,
-      top_skills: "React, Node.js, TypeScript, GraphQL, AWS",
-      avg_experience: "4.5 años",
-      date: "2023-07-10"
-    },
-  ];
+  const fetchReportData = async () => {
+    setLoading(true);
+    try {
+      const data = await getReportsData();
+      setReportData(data);
+    } catch (error) {
+      console.error('Error al cargar datos:', error);
+      toast({
+        title: "Error al cargar datos",
+        description: "No se pudieron cargar los informes. Intente nuevamente más tarde.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleRefreshData = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      toast({
-        title: "Datos actualizados",
-        description: "Los informes han sido actualizados con los últimos datos.",
-      });
-    }, 1200);
+    fetchReportData();
+    toast({
+      title: "Datos actualizados",
+      description: "Los informes han sido actualizados con los últimos datos.",
+    });
   };
 
   return (
@@ -87,7 +68,7 @@ const ReportsContent = () => {
           </CardHeader>
           <CardContent className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={skillsData} layout="vertical" margin={{ left: 20 }}>
+              <BarChart data={reportData.skillsData} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" />
                 <YAxis dataKey="name" type="category" width={80} />
@@ -108,7 +89,7 @@ const ReportsContent = () => {
           </CardHeader>
           <CardContent className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={experienceData}>
+              <BarChart data={reportData.experienceData}>
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="range" />
                 <YAxis />
@@ -139,15 +120,23 @@ const ReportsContent = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {descriptiveResults.map((result) => (
-                <TableRow key={result.id}>
-                  <TableCell>{result.id}</TableCell>
-                  <TableCell>{result.cv_processed}</TableCell>
-                  <TableCell>{result.top_skills}</TableCell>
-                  <TableCell>{result.avg_experience}</TableCell>
-                  <TableCell>{result.date}</TableCell>
+              {reportData.descriptiveResults.length > 0 ? (
+                reportData.descriptiveResults.map((result: any) => (
+                  <TableRow key={result.analisis_id}>
+                    <TableCell>{result.analisis_id}</TableCell>
+                    <TableCell>{result.cv_procesados}</TableCell>
+                    <TableCell>{result.habilidades_top ? result.habilidades_top.join(', ') : 'N/A'}</TableCell>
+                    <TableCell>{result.experiencia_promedio ? JSON.stringify(result.experiencia_promedio) : 'N/A'}</TableCell>
+                    <TableCell>{new Date(result.fecha_analisis).toLocaleDateString()}</TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-4">
+                    No hay datos de análisis disponibles
+                  </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </CardContent>
