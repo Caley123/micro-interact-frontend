@@ -58,7 +58,7 @@ export async function getDashboardMetrics() {
 }
 
 // Get recent candidates (mock data)
-export async function getRecentCandidates() {
+export async function getRecentCandidatesDashboard() {
   try {
     const { data, error } = await supabase
       .from('datos_postulantes')

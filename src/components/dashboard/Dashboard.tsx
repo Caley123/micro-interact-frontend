@@ -16,7 +16,7 @@ import { Users, FileText, CheckCircle, Clock, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getDashboardMetrics, getRecentCandidates, getReportsData } from '@/services';
+import { getDashboardMetrics, getRecentCandidatesDashboard, getReportsData } from '@/services';
 import { useToast } from '@/hooks/use-toast';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
@@ -48,7 +48,7 @@ const Dashboard = () => {
       setStats(metrics);
       
       // Cargar candidatos recientes
-      const candidates = await getRecentCandidates();
+      const candidates = await getRecentCandidatesDashboard();
       setRecentCandidates(candidates);
       
       // Cargar datos para gráficos
