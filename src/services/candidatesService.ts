@@ -37,13 +37,18 @@ export async function getCandidates() {
         position = getExperienceTitle(candidate.experiencia[0]);
       }
       
+      // Use proper type checking and parsing for the score
+      const score = typeof candidate.predicciones?.probabilidad_exito === 'number' 
+        ? candidate.predicciones.probabilidad_exito 
+        : Math.floor(Math.random() * 30) + 70;
+      
       return {
         id: candidate.postulante_id.toString(),
         name: candidate.nombre_completo || 'Candidato sin nombre',
         position: position,
         experience: totalExperience,
         skills: candidate.habilidades || [],
-        score: candidate.predicciones?.probabilidad_exito || Math.floor(Math.random() * 30) + 70,
+        score: score,
         date: candidate.curriculums?.fecha_carga || new Date().toISOString()
       };
     }) || [];
@@ -94,11 +99,16 @@ export async function getRecentCandidates() {
         }
       }
       
+      // Use proper type checking and parsing for the score
+      const score = typeof candidate.predicciones?.probabilidad_exito === 'number' 
+        ? candidate.predicciones.probabilidad_exito 
+        : Math.floor(Math.random() * 20) + 75;
+      
       return {
         id: candidate.postulante_id.toString(),
         name: candidate.nombre_completo || 'Candidato sin nombre',
         position,
-        score: candidate.predicciones?.probabilidad_exito || Math.floor(Math.random() * 20) + 75,
+        score,
         date: timeAgo
       };
     }) || [];
