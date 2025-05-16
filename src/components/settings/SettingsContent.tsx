@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { saveUserSettings } from '@/services/DatabaseService';
+import { saveUserSettings } from '@/services';
 
 const SettingsContent = () => {
   const { toast } = useToast();

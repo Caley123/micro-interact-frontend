@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Lightbulb, Filter, Star, Check, ChevronDown, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { getRecommendations } from '@/services/DatabaseService';
+import { getRecommendations } from '@/services';
 import { useToast } from '@/hooks/use-toast';
 
 interface Recommendation {
