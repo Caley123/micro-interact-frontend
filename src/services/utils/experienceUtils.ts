@@ -1,3 +1,4 @@
+
 import { Json } from '@/integrations/supabase/types';
 
 // Valida que el valor sea un objeto JSON (pero no un array)

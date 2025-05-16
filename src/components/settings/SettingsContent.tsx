@@ -7,12 +7,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { saveUserSettings } from '@/services';
+import { useNavigate } from 'react-router-dom';
+import { saveUserSettings, authenticateUser } from '@/services';
+import { getThemePreference, setThemePreference } from '@/services/themeService';
+import { supabase } from '@/integrations/supabase/client';
 
 const SettingsContent = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [darkMode, setDarkMode] = useState(false);
   
   useEffect(() => {
     // Obtener información del usuario desde localStorage
@@ -20,7 +25,16 @@ const SettingsContent = () => {
     if (userJson) {
       setCurrentUser(JSON.parse(userJson));
     }
+    
+    // Check dark mode setting
+    const theme = getThemePreference();
+    setDarkMode(theme === 'dark');
   }, []);
+  
+  const handleDarkModeToggle = (checked: boolean) => {
+    setDarkMode(checked);
+    setThemePreference(checked ? 'dark' : 'light');
+  };
 
   const handleSaveSettings = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -40,6 +54,9 @@ const SettingsContent = () => {
       // Recopilar los datos del formulario
       const formData = new FormData(event.target as HTMLFormElement);
       const settings = Object.fromEntries(formData.entries());
+      
+      // Guardar el tema actual en los ajustes
+      settings.darkMode = darkMode.toString();
       
       // Guardar configuración
       const success = await saveUserSettings(currentUser.id, settings);
@@ -61,6 +78,41 @@ const SettingsContent = () => {
       });
     } finally {
       setSaving(false);
+    }
+  };
+  
+  const handleDeleteAccount = () => {
+    toast({
+      title: "Función no disponible",
+      description: "La eliminación de cuentas no está disponible en esta versión.",
+      variant: "destructive"
+    });
+  };
+  
+  const handleLogout = async () => {
+    try {
+      // Clear user data from localStorage
+      localStorage.removeItem('currentUser');
+      
+      // For a real Supabase implementation you would use:
+      // await supabase.auth.signOut();
+      
+      toast({
+        title: "Sesión cerrada",
+        description: "Has cerrado sesión exitosamente."
+      });
+      
+      // Redirect to login page
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+      toast({
+        title: "Error",
+        description: "No se pudo cerrar la sesión. Intente nuevamente.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -102,7 +154,12 @@ const SettingsContent = () => {
                     <Label htmlFor="dark-mode">Modo oscuro</Label>
                     <p className="text-sm text-gray-500">Activar tema oscuro</p>
                   </div>
-                  <Switch id="dark-mode" name="dark-mode" />
+                  <Switch 
+                    id="dark-mode" 
+                    name="dark-mode" 
+                    checked={darkMode}
+                    onCheckedChange={handleDarkModeToggle}
+                  />
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
@@ -156,6 +213,11 @@ const SettingsContent = () => {
                   </div>
                 </div>
               </CardContent>
+              <CardFooter>
+                <Button type="submit" disabled={saving}>
+                  {saving ? "Guardando..." : "Guardar cambios"}
+                </Button>
+              </CardFooter>
             </form>
           </Card>
         </TabsContent>
@@ -193,10 +255,19 @@ const SettingsContent = () => {
                 </div>
               </CardContent>
               <CardFooter className="flex justify-between">
-                <Button variant="destructive" type="button">Eliminar cuenta</Button>
-                <Button type="submit" disabled={saving}>
-                  {saving ? "Guardando..." : "Actualizar cuenta"}
-                </Button>
+                <Button variant="destructive" type="button" onClick={handleDeleteAccount}>Eliminar cuenta</Button>
+                <div className="space-x-2">
+                  <Button 
+                    type="button" 
+                    variant="outline"
+                    onClick={handleLogout}
+                  >
+                    Cerrar sesión
+                  </Button>
+                  <Button type="submit" disabled={saving}>
+                    {saving ? "Guardando..." : "Actualizar cuenta"}
+                  </Button>
+                </div>
               </CardFooter>
             </form>
           </Card>

@@ -7,89 +7,46 @@
   :root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
-
     --card: 0 0% 100%;
     --card-foreground: 222.2 84% 4.9%;
-
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 211 100% 50%;
+    --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-
     --accent: 210 40% 96.1%;
     --accent-foreground: 222.2 47.4% 11.2%;
-
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 211 100% 50%;
-
+    --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
-
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 211 100% 50%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    --success: 142 76% 36%;
-    --warning: 38 92% 50%;
-    --info: 201 96% 32%;
   }
-
+ 
   .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
-
     --card: 222.2 84% 4.9%;
     --card-foreground: 210 40% 98%;
-
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-
-    --primary: 211 100% 50%;
+    --primary: 217.2 91.2% 59.8%;
     --primary-foreground: 222.2 47.4% 11.2%;
-
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
-
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62.8% 50.6%;
     --destructive-foreground: 210 40% 98%;
-
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 211 100% 50%;
-    
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 211 100% 50%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
-
-    --success: 142 76% 45%;
-    --warning: 38 92% 60%;
-    --info: 201 96% 40%;
+    --ring: 224.3 76.3% 48%;
   }
 }
 
@@ -97,106 +54,77 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
   }
 }
 
-@layer components {
-  .input-field {
-    @apply w-full border border-gray-300 rounded-md px-4 py-2 transition-all duration-300 ease-out focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary;
-  }
-
-  .input-field:focus {
-    @apply border-[2px];
-  }
-
-  .input-field-error {
-    @apply border-destructive focus:ring-destructive/50 focus:border-destructive;
-  }
-
-  .input-icon {
-    @apply absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 transition-all duration-300;
-  }
-
-  .btn {
-    @apply inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-primary {
-    @apply bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2;
-  }
-
-  .btn-secondary {
-    @apply bg-secondary text-secondary-foreground hover:bg-secondary/80 h-10 px-4 py-2;
-  }
-
-  .btn-outline {
-    @apply bg-transparent border border-input hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2;
-  }
-
-  .shake-animation {
-    @apply animate-shake;
-  }
-
-  .dropzone {
-    @apply border-2 border-dashed border-gray-300 rounded-lg p-8 transition-all duration-300 flex flex-col items-center justify-center cursor-pointer hover:border-primary;
-  }
-
-  .active-dropzone {
-    @apply border-primary bg-primary/5;
-  }
-
-  .progress-bar {
-    @apply h-2 bg-primary rounded-full transition-all duration-300 ease-in-out;
-  }
-
-  .progress-bar-container {
-    @apply w-full h-2 bg-gray-200 rounded-full overflow-hidden;
+/* Additional custom utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.3s ease-in-out;
   }
   
-  .check-animation {
-    @apply stroke-[3] text-success stroke-success fill-none;
-    stroke-dasharray: 100;
-    stroke-dashoffset: 100;
-    animation: draw 0.5s ease-in-out forwards;
+  .hover-scale {
+    transition: transform 0.2s ease-in-out;
   }
+  
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-in-out;
+  }
+  
+  .animate-pulse {
+    animation: pulse 1.5s infinite;
+  }
+}
 
-  .menu-item {
-    @apply flex items-center gap-2 p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-all duration-200 relative;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
   }
+  to {
+    opacity: 1;
+  }
+}
 
-  .menu-item-active {
-    @apply bg-primary/10 text-primary;
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
   }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
 
-  .menu-item-active::before {
-    content: "";
-    @apply absolute left-0 top-0 h-full w-0 bg-primary transition-all duration-300 ease-in-out;
-    animation: menuBarWidth 0.3s ease-out forwards;
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
   }
+  50% {
+    opacity: 0.6;
+  }
+}
 
-  @keyframes menuBarWidth {
-    from { width: 0; }
-    to { width: 3px; }
-  }
+/* Sidebar active menu item styles */
+.menu-item {
+  @apply flex items-center gap-3 px-3 py-2 rounded-md transition-colors text-gray-700 hover:bg-gray-100;
+}
 
-  .circle-progress {
-    @apply text-center flex items-center justify-center relative;
-  }
+.menu-item-active {
+  @apply bg-primary/10 text-primary;
+}
 
-  .circle-progress svg {
-    @apply -rotate-90;
-  }
+/* Dark mode adaptations */
+.dark .menu-item {
+  @apply text-gray-300 hover:bg-gray-800;
+}
 
-  .circle-progress circle {
-    @apply transition-all duration-1000 ease-out;
-    stroke-dasharray: 283;
-    stroke-dashoffset: 283;
-  }
-
-  .circle-progress-text {
-    @apply absolute text-2xl font-bold;
-  }
+.dark .menu-item-active {
+  @apply bg-primary/20 text-primary;
 }

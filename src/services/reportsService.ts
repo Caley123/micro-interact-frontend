@@ -63,11 +63,10 @@ export async function getReportsData() {
         }, 0);
         
         // Assign to corresponding category using proper type checking
-        const years = totalYears;
-        if (years <= 1) experienceRanges['0-1 años']++;
-        else if (years <= 3) experienceRanges['1-3 años']++;
-        else if (years <= 5) experienceRanges['3-5 años']++;
-        else if (years <= 8) experienceRanges['5-8 años']++;
+        if (totalYears <= 1) experienceRanges['0-1 años']++;
+        else if (totalYears <= 3) experienceRanges['1-3 años']++;
+        else if (totalYears <= 5) experienceRanges['3-5 años']++;
+        else if (totalYears <= 8) experienceRanges['5-8 años']++;
         else experienceRanges['8+ años']++;
       }
     });

@@ -56,27 +56,28 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed md:relative bg-sidebar h-screen w-64 z-30 shadow-md flex flex-col transition-transform duration-300 ease-out",
+          "fixed md:relative h-screen w-64 z-30 shadow-md flex flex-col transition-transform duration-300 ease-out",
+          "bg-white dark:bg-gray-900 dark:border-r dark:border-gray-800",
           isMobile ? (isOpen ? "translate-x-0" : "-translate-x-full") : "translate-x-0",
           animateIn ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         )}
       >
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          <h2 className="text-xl font-bold">lovable.dev</h2>
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-xl font-bold dark:text-white">lovable.dev</h2>
           {isMobile && (
             <button 
               onClick={toggleSidebar}
-              className="p-1 rounded hover:bg-gray-100 transition-all duration-200"
+              className="p-1 rounded hover:bg-gray-100 transition-all duration-200 dark:hover:bg-gray-800"
             >
-              <X size={20} />
+              <X size={20} className="dark:text-gray-300" />
             </button>
           )}
           {!isMobile && (
             <button 
               onClick={toggleSidebar}
-              className="p-1 rounded hover:bg-gray-100 transition-all duration-200"
+              className="p-1 rounded hover:bg-gray-100 transition-all duration-200 dark:hover:bg-gray-800"
             >
-              <ChevronLeft size={20} />
+              <ChevronLeft size={20} className="dark:text-gray-300" />
             </button>
           )}
         </div>
@@ -89,8 +90,11 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
                 key={item.path}
                 to={item.path} 
                 className={cn(
-                  "menu-item group",
-                  isActive && "menu-item-active"
+                  "flex items-center gap-3 px-3 py-2 rounded-md transition-colors",
+                  "hover:bg-gray-100 dark:hover:bg-gray-800",
+                  isActive 
+                    ? "bg-primary/10 text-primary dark:bg-primary/20" 
+                    : "text-gray-700 dark:text-gray-300"
                 )}
                 onClick={isMobile ? toggleSidebar : undefined}
               >
@@ -107,8 +111,8 @@ const Sidebar = ({ isOpen, toggleSidebar }: SidebarProps) => {
           })}
         </nav>
         
-        <div className="p-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500">© 2025 lovable.dev</div>
+        <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+          <div className="text-xs text-gray-500 dark:text-gray-400">© 2025 lovable.dev</div>
         </div>
       </div>
     </>
