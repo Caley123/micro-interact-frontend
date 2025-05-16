@@ -1,33 +1,22 @@
-
 import { Json } from '@/integrations/supabase/types';
 
-// Interfaces for strong typing
-export interface Experiencia {
-  title?: string;
-  position?: string;
-  years?: number;
-  duration?: number;
-}
-
-// Function to check if JSON is an experience object
-export function isExperienciaObject(exp: Json): exp is { [key: string]: Json } {
+// Valida que el valor sea un objeto JSON (pero no un array)
+export function isObjectJson(exp: Json): exp is Record<string, Json> {
   return typeof exp === 'object' && exp !== null && !Array.isArray(exp);
 }
 
-// Function to safely extract years of experience
+// Extrae de forma segura los años de experiencia
 export function getExperienceYears(exp: Json): number {
-  if (!isExperienciaObject(exp)) return 0;
-  
-  const years = exp.years || exp.duration;
-  if (typeof years === 'number') return years;
-  return 0;
+  if (!isObjectJson(exp)) return 0;
+
+  const years = exp['years'] ?? exp['duration'];
+  return typeof years === 'number' ? years : 0;
 }
 
-// Function to safely get title/position
+// Extrae de forma segura el título o puesto
 export function getExperienceTitle(exp: Json): string {
-  if (!isExperienciaObject(exp)) return 'No especificado';
-  
-  const title = exp.title || exp.position;
-  if (typeof title === 'string') return title;
-  return 'No especificado';
+  if (!isObjectJson(exp)) return 'No especificado';
+
+  const title = exp['title'] ?? exp['position'];
+  return typeof title === 'string' ? title : 'No especificado';
 }
