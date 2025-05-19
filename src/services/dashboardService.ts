@@ -2,8 +2,42 @@
 import { supabase } from '@/integrations/supabase/client';
 import { getExperienceYears } from './utils/experienceUtils';
 
+// Definir interfaces para los datos
+interface DashboardMetrics {
+  totalCandidates: number;
+  processedResumes: number;
+  qualifiedCandidates: number;
+  avgProcessingTime: number;
+}
+
+interface RecentCandidate {
+  id: number;
+  name: string;
+  position: string;
+  score: number;
+  date: string;
+}
+
+interface SkillCount {
+  total: number;
+  qualified: number;
+  unqualified: number;
+}
+
+interface ChartData {
+  barData: Array<{
+    name: string;
+    qualified: number;
+    unqualified: number;
+  }>;
+  pieData: Array<{
+    name: string;
+    value: number;
+  }>;
+}
+
 // Obtener métricas para el dashboard
-export async function getDashboardMetrics() {
+export async function getDashboardMetrics(): Promise<DashboardMetrics> {
   try {
     const { data: totalCandidatesData, error: candidatesError } = await supabase
       .from('datos_postulantes')
@@ -59,7 +93,7 @@ export async function getDashboardMetrics() {
 }
 
 // Obtener candidatos recientes (datos reales)
-export async function getRecentCandidatesDashboard() {
+export async function getRecentCandidatesDashboard(): Promise<RecentCandidate[]> {
   try {
     // Obtener datos de candidatos reales
     const { data: candidatesData, error: candidatesError } = await supabase
@@ -116,7 +150,7 @@ export async function getRecentCandidatesDashboard() {
 }
 
 // Obtener datos de gráficos para el dashboard (basados en datos reales)
-export async function getMockChartData() {
+export async function getMockChartData(): Promise<ChartData> {
   try {
     // Obtener habilidades de todos los candidatos
     const { data: candidatesData, error: candidatesError } = await supabase
@@ -133,7 +167,7 @@ export async function getMockChartData() {
     if (predictionsError) throw predictionsError;
     
     // Procesar datos para gráfico de barras - Análisis de Cualificación de Habilidades
-    let skillsCount = {};
+    const skillsCount: Record<string, SkillCount> = {};
     
     // Contar ocurrencias de cada habilidad
     if (candidatesData && candidatesData.length > 0) {
