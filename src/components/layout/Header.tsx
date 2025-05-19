@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Bell, Menu, ChevronDown, User, Settings, LogOut } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useToast } from '@/hooks/use-toast';
+import { logoutUser } from '@/services';
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -23,19 +24,26 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
   const { toast } = useToast();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    // Clear user data from localStorage
-    localStorage.removeItem('currentUser');
+  const handleLogout = async () => {
+    const success = await logoutUser();
     
-    toast({
-      title: "Sesión cerrada",
-      description: "Has cerrado sesión exitosamente."
-    });
-    
-    // Redirect to login
-    setTimeout(() => {
-      navigate('/login');
-    }, 1500);
+    if (success) {
+      toast({
+        title: "Sesión cerrada",
+        description: "Has cerrado sesión exitosamente."
+      });
+      
+      // Redirigir al login
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+    } else {
+      toast({
+        title: "Error",
+        description: "No se pudo cerrar la sesión. Intente nuevamente.",
+        variant: "destructive"
+      });
+    }
   };
   
   const handleNavigateToSettings = () => {
@@ -55,7 +63,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
       
       <div className="flex-1 flex justify-between items-center">
         <div>
-          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">lovable.dev</h1>
+          <h1 className="text-xl font-semibold text-gray-800 dark:text-gray-200">Escuela Pontificia</h1>
         </div>
         
         <div className="flex items-center gap-4">
@@ -72,7 +80,7 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
                 <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary dark:bg-primary/20">
                   <User size={16} />
                 </div>
-                <span className="text-sm font-medium hidden md:inline dark:text-gray-300">User Name</span>
+                <span className="text-sm font-medium hidden md:inline dark:text-gray-300">Usuario</span>
                 <ChevronDown size={16} className={`transition-transform duration-300 dark:text-gray-300 ${userMenuOpen ? 'rotate-180' : ''}`} />
               </button>
             </DropdownMenuTrigger>

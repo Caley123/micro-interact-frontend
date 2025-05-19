@@ -32,7 +32,7 @@ const LoginScreen = () => {
       if (user) {
         toast({
           title: `¡Bienvenido ${user.nombre_usuario}!`,
-          description: 'Has iniciado sesión correctamente en Lovable Recruiter!',
+          description: '¡Has iniciado sesión correctamente en Escuela Pontificia!',
           variant: 'default',
         });
         
@@ -60,7 +60,7 @@ const LoginScreen = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl font-bold">Lovable Recruiter</CardTitle>
+          <CardTitle className="text-2xl font-bold">Escuela Pontificia</CardTitle>
           <CardDescription>
             Ingrese sus credenciales para acceder al sistema
           </CardDescription>

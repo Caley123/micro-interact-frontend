@@ -19,7 +19,7 @@ import { initializeTheme } from "./services/themeService";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Initialize theme on app load
+  // Inicializar tema al cargar la aplicación
   useEffect(() => {
     initializeTheme();
   }, []);
@@ -40,7 +40,7 @@ const App = () => {
           <Route path="/recommendations" element={<RecommendationsPage />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/settings" element={<Settings />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          {/* AÑADIR TODAS LAS RUTAS PERSONALIZADAS ENCIMA DE LA RUTA DE CAPTURA "*" */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>

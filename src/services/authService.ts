@@ -10,11 +10,11 @@ export interface Usuario {
   ultimo_login: string | null;
 }
 
-// User authentication
+// Autenticación de usuario
 export async function authenticateUser(username: string, password: string): Promise<Usuario | null> {
   try {
-    // In a real implementation, we would verify the password hash
-    // but for this example we compare with the user 'admin' / 'password'
+    // En una implementación real, verificaríamos el hash de la contraseña
+    // pero para este ejemplo comparamos con el usuario 'admin' / 'password'
     const { data, error } = await supabase
       .from('usuarios')
       .select('*')
@@ -22,14 +22,14 @@ export async function authenticateUser(username: string, password: string): Prom
       .single();
     
     if (error) {
-      console.error('Error authenticating:', error);
+      console.error('Error al autenticar:', error);
       return null;
     }
     
-    // Simulating password verification (in production use bcrypt)
-    // Password is 'password' for user 'admin'
+    // Simulando verificación de contraseña (en producción usar bcrypt)
+    // La contraseña es 'password' para el usuario 'admin'
     if (data && username === 'admin' && password === 'password') {
-      // Update last login
+      // Actualizar último inicio de sesión
       await supabase
         .from('usuarios')
         .update({ ultimo_login: new Date().toISOString() })
@@ -40,19 +40,35 @@ export async function authenticateUser(username: string, password: string): Prom
     
     return null;
   } catch (error) {
-    console.error('Authentication error:', error);
+    console.error('Error de autenticación:', error);
     return null;
   }
 }
 
-// Save user settings
-export async function saveUserSettings(userId: number, settings: any) {
+// Cerrar sesión de usuario
+export async function logoutUser(): Promise<boolean> {
   try {
-    // In a real implementation, we would save settings in a specific table
-    console.log('Saving settings for user:', userId, settings);
+    // Limpiar datos del usuario de localStorage
+    localStorage.removeItem('currentUser');
+    
+    // En una implementación real con Supabase Auth, usaríamos:
+    // await supabase.auth.signOut();
+    
     return true;
   } catch (error) {
-    console.error('Error saving settings:', error);
+    console.error('Error al cerrar sesión:', error);
+    return false;
+  }
+}
+
+// Guardar configuración de usuario
+export async function saveUserSettings(userId: number, settings: any) {
+  try {
+    // En una implementación real, guardaríamos la configuración en una tabla específica
+    console.log('Guardando configuración para usuario:', userId, settings);
+    return true;
+  } catch (error) {
+    console.error('Error al guardar configuración:', error);
     return false;
   }
 }

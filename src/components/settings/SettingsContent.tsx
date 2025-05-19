@@ -8,9 +8,8 @@ import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { saveUserSettings, authenticateUser } from '@/services';
+import { saveUserSettings, logoutUser } from '@/services';
 import { getThemePreference, setThemePreference } from '@/services/themeService';
-import { supabase } from '@/integrations/supabase/client';
 
 const SettingsContent = () => {
   const { toast } = useToast();
@@ -26,7 +25,7 @@ const SettingsContent = () => {
       setCurrentUser(JSON.parse(userJson));
     }
     
-    // Check dark mode setting
+    // Verificar configuración de modo oscuro
     const theme = getThemePreference();
     setDarkMode(theme === 'dark');
   }, []);
@@ -90,24 +89,19 @@ const SettingsContent = () => {
   };
   
   const handleLogout = async () => {
-    try {
-      // Clear user data from localStorage
-      localStorage.removeItem('currentUser');
-      
-      // For a real Supabase implementation you would use:
-      // await supabase.auth.signOut();
-      
+    const success = await logoutUser();
+    
+    if (success) {
       toast({
         title: "Sesión cerrada",
         description: "Has cerrado sesión exitosamente."
       });
       
-      // Redirect to login page
+      // Redireccionar a la página de inicio de sesión
       setTimeout(() => {
         navigate('/login');
       }, 1500);
-    } catch (error) {
-      console.error('Error al cerrar sesión:', error);
+    } else {
       toast({
         title: "Error",
         description: "No se pudo cerrar la sesión. Intente nuevamente.",
@@ -140,7 +134,7 @@ const SettingsContent = () => {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="app-name">Nombre de la aplicación</Label>
-                  <Input id="app-name" name="app-name" defaultValue="Lovable Recruiter" />
+                  <Input id="app-name" name="app-name" defaultValue="Escuela Pontificia" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="language">Idioma</Label>
