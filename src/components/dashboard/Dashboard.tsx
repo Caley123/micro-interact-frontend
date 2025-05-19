@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   BarChart, 
@@ -16,7 +17,7 @@ import { Users, FileText, CheckCircle, Clock, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { getDashboardMetrics, getRecentCandidatesDashboard, getReportsData } from '@/services';
+import { getDashboardMetrics, getRecentCandidatesDashboard, getMockChartData } from '@/services';
 import { useToast } from '@/hooks/use-toast';
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
@@ -52,29 +53,8 @@ const Dashboard = () => {
       setRecentCandidates(candidates);
       
       // Cargar datos para gráficos
-      const reportsData = await getReportsData();
-      
-      // Transformar los datos para el gráfico de barras
-      const barData = [
-        { name: 'Technical', qualified: 65, unqualified: 35 },
-        { name: 'Communication', qualified: 78, unqualified: 22 },
-        { name: 'Leadership', qualified: 45, unqualified: 55 },
-        { name: 'Problem Solving', qualified: 70, unqualified: 30 },
-        { name: 'Team Work', qualified: 82, unqualified: 18 },
-      ];
-      
-      // Usar los datos de habilidades para el gráfico de pie
-      const pieData = reportsData.skillsData.length ? 
-        reportsData.skillsData : 
-        [
-          { name: 'Frontend', value: 35 },
-          { name: 'Backend', value: 25 },
-          { name: 'Full Stack', value: 20 },
-          { name: 'DevOps', value: 10 },
-          { name: 'Design', value: 10 },
-        ];
-      
-      setChartData({ barData, pieData });
+      const chartsData = await getMockChartData();
+      setChartData(chartsData);
     } catch (error) {
       console.error('Error al cargar datos del dashboard:', error);
       toast({
@@ -91,7 +71,7 @@ const Dashboard = () => {
     <div className="space-y-6 animate-fade-in">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard 
-          title="Total Candidates" 
+          title="Total de Estudiantes" 
           value={stats.totalCandidates} 
           isLoading={isLoading} 
           icon={<Users size={24} className="text-blue-500" />}
@@ -99,7 +79,7 @@ const Dashboard = () => {
           trend="up"
         />
         <StatCard 
-          title="Processed Resumes" 
+          title="Expedientes Procesados" 
           value={stats.processedResumes} 
           isLoading={isLoading} 
           icon={<FileText size={24} className="text-purple-500" />}
@@ -107,7 +87,7 @@ const Dashboard = () => {
           trend="up"
         />
         <StatCard 
-          title="Qualified Candidates" 
+          title="Estudiantes Calificados" 
           value={stats.qualifiedCandidates} 
           isLoading={isLoading} 
           icon={<CheckCircle size={24} className="text-green-500" />}
@@ -115,7 +95,7 @@ const Dashboard = () => {
           trend="down"
         />
         <StatCard 
-          title="Avg. Processing Time" 
+          title="Tiempo Promedio" 
           value={stats.avgProcessingTime.toFixed(1)} 
           isLoading={isLoading} 
           suffix="min"
@@ -129,9 +109,9 @@ const Dashboard = () => {
         <Card className="animate-fade-in" style={{ animationDelay: '200ms' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-semibold flex items-center justify-between">
-              Skills Qualification Analysis
+              Análisis de Calificación por Habilidades
               <Button variant="ghost" size="sm" className="text-xs gap-1 text-gray-500 hover:text-primary">
-                View Details <ChevronRight size={14} />
+                Ver Detalles <ChevronRight size={14} />
               </Button>
             </CardTitle>
           </CardHeader>
@@ -161,12 +141,14 @@ const Dashboard = () => {
                     />
                     <Legend />
                     <Bar 
+                      name="Calificados"
                       dataKey="qualified" 
                       fill="#3b82f6" 
                       radius={[4, 4, 0, 0]}
                       animationDuration={1500}
                     />
                     <Bar 
+                      name="No Calificados"
                       dataKey="unqualified" 
                       fill="#ef4444" 
                       radius={[4, 4, 0, 0]}
@@ -183,9 +165,9 @@ const Dashboard = () => {
         <Card className="animate-fade-in" style={{ animationDelay: '300ms' }}>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg font-semibold flex items-center justify-between">
-              Candidates by Skills
+              Estudiantes por Habilidades
               <Button variant="ghost" size="sm" className="text-xs gap-1 text-gray-500 hover:text-primary">
-                View Details <ChevronRight size={14} />
+                Ver Detalles <ChevronRight size={14} />
               </Button>
             </CardTitle>
           </CardHeader>
@@ -206,6 +188,7 @@ const Dashboard = () => {
                       outerRadius={90}
                       fill="#8884d8"
                       dataKey="value"
+                      nameKey="name"
                       label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       animationDuration={1500}
                     >
@@ -220,7 +203,7 @@ const Dashboard = () => {
                         borderRadius: '0.375rem',
                         boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
                       }} 
-                      formatter={(value) => [`${value} candidates`, '']}
+                      formatter={(value) => [`${value} estudiantes`, '']}
                     />
                     <Legend />
                   </PieChart>
@@ -292,9 +275,9 @@ const RecentCandidates = ({ isLoading, candidates }) => {
     <Card className="animate-fade-in" style={{ animationDelay: '400ms' }}>
       <CardHeader className="pb-2">
         <CardTitle className="text-lg font-semibold flex items-center justify-between">
-          Recent Candidates
+          Estudiantes Recientes
           <Button variant="ghost" size="sm" className="text-xs gap-1 text-gray-500 hover:text-primary">
-            View All <ChevronRight size={14} />
+            Ver Todos <ChevronRight size={14} />
           </Button>
         </CardTitle>
       </CardHeader>
@@ -314,7 +297,7 @@ const RecentCandidates = ({ isLoading, candidates }) => {
           </div>
         ) : candidates.length === 0 ? (
           <div className="text-center py-8 text-gray-500">
-            No hay candidatos recientes para mostrar
+            No hay estudiantes recientes para mostrar
           </div>
         ) : (
           <div className="space-y-1">
